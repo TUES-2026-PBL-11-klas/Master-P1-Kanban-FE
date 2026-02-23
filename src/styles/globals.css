@@ -1,0 +1,64 @@
+*{ box-sizing:border-box; }
+html, body, #root{ height:100%; }
+
+body{
+  margin:0;
+  background: var(--m3-surface);
+  color: var(--m3-on-primary);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+}
+
+button, input, textarea{
+  font: inherit;
+  color: inherit;
+}
+
+a{ color: inherit; }
+
+.appShell{
+  height:100%;
+  display:flex;
+  flex-direction:column;
+}
+
+.topDivider{
+  height: 1px;
+  background: rgba(79,55,138,.35);
+}
+
+.boardArea{
+  flex:1;
+  display:flex;
+  gap: var(--gap);
+  padding: 18px;
+  align-items: stretch;
+}
+
+/* left filter icon column */
+.leftRail{
+  width: 46px;
+  display:flex;
+  align-items:flex-start;
+  padding-top: 22px;
+}
+
+.iconBtn{
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 10px;
+}
+
+.iconBtn:hover{
+  background: rgba(175,129,220,.12);
+}
+
+/* columns wrapper */
+.columns{
+  flex:1;
+  display:grid;
+  grid-template-columns: repeat(3, minmax(280px, 1fr));
+  gap: var(--gap);
+  min-width: 0;
+}
