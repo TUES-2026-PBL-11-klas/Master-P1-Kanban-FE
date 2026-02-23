@@ -1,0 +1,30 @@
+:root{
+  /*Material-ish palette */
+  --m3-primary: #AF81DC;         /* main lilac */
+  --m3-primary-fixed: #B58EDC;   /* slightly different lilac */
+  --m3-on-primary: #4F378A;      /* dark purple text */
+
+  --m3-surface: #F5F0FF;         /* page background */
+  --m3-surface-variant: #E8DEF8; /* card fill-ish */
+  --m3-outline-variant: #CAC4D0; /* borders */
+
+  /*  Neutrals / shadows */
+  --ink: rgba(79,55,138,1);
+  --ink-70: rgba(79,55,138,.70);
+  --ink-55: rgba(79,55,138,.55);
+  --ink-35: rgba(79,55,138,.35);
+
+  --shadow-soft: 0 10px 24px rgba(40, 20, 80, .12);
+
+  /* Radius / spacing */
+  --r-lg: 18px;
+  --r-md: 14px;
+  --r-sm: 10px;
+
+  --gap: 18px;
+
+  /*Priority opacity (same color, different opacity)*/
+  --prio-high: 1;
+  --prio-medium: .75;
+  --prio-low: .50;
+}
