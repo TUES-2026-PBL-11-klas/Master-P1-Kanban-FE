@@ -8,15 +8,28 @@ export default function App() {
   const { state, derived, actions } = useKanbanStore();
   const [isNewTaskOpen, setIsNewTaskOpen] = useState(false);
 
+  // коя колона е избрана от плюсчето (ако е null -> от горния бутон)
+  const [presetColumnId, setPresetColumnId] = useState(null);
+
+  function openNewTask(columnId = null) {
+    setPresetColumnId(columnId);
+    setIsNewTaskOpen(true);
+  }
+
+  function closeNewTask() {
+    setIsNewTaskOpen(false);
+    setPresetColumnId(null);
+  }
+
   return (
     <div className="appShell">
       <TopBar
         sortMode={state.sortMode}
         onDeleteAll={actions.deleteAll}
         onToggleSort={actions.toggleSortMode}
-        onNewTask={() => setIsNewTaskOpen(true)}
-        onExport={() => alert("Export CSV идва следващата стъпка 🙂")}
-        onImport={() => alert("Import CSV идва следващата стъпка 🙂")}
+        onNewTask={() => openNewTask(null)}
+        onExport={() => alert("Export CSV idva sledvashtata stupka ")}
+        onImport={() => alert("Import CSV idva sledvashtata stupka ")}
       />
 
       <div className="topDivider" />
@@ -36,14 +49,19 @@ export default function App() {
         </div>
 
         <div className="columns">
-          <Board columns={derived.byColumn} counts={derived.counts} />
+          <Board
+            columns={derived.byColumn}
+            counts={derived.counts}
+            onAddTask={openNewTask}
+          />
         </div>
       </main>
 
       {isNewTaskOpen && (
         <NewTaskModal
           sortMode={state.sortMode}
-          onClose={() => setIsNewTaskOpen(false)}
+          initialColumnId={presetColumnId}
+          onClose={closeNewTask}
           onCreate={(input) => actions.createTask(input)}
         />
       )}

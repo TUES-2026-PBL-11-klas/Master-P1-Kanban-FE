@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ModalShell from "./ModalShell";
 import styles from "./NewTaskModal.module.css";
 import { PRIORITY_META } from "../../utils/priority";
@@ -11,13 +11,35 @@ const COLUMNS = [
 
 const PRIORITIES = ["high", "medium", "low"];
 
-export default function NewTaskModal({ sortMode, onClose, onCreate }) {
+export default function NewTaskModal({
+  sortMode,
+  onClose,
+  onCreate,
+  initialColumnId = null,
+}) {
   const [step, setStep] = useState(0);
 
-  const [columnId, setColumnId] = useState(null);
+  const [columnId, setColumnId] = useState(initialColumnId);
   const [priority, setPriority] = useState(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+
+  // Ако modal-a е отворен от плюсчето на колона -> preset колоната и прескачаме Column step-а
+  // Ако е отворен от горния бутон -> започваме от Column step-а
+  useEffect(() => {
+    if (initialColumnId) {
+      setColumnId(initialColumnId);
+      setStep(1); // директно към Priority
+    } else {
+      setColumnId(null);
+      setStep(0);
+    }
+
+    // по желание: при всяко отваряне да почва "на чисто"
+    setPriority(null);
+    setTitle("");
+    setDescription("");
+  }, [initialColumnId]);
 
   const canNext = useMemo(() => {
     if (step === 0) return !!columnId;
@@ -139,9 +161,7 @@ export default function NewTaskModal({ sortMode, onClose, onCreate }) {
             rows={6}
             autoFocus
           />
-          <div className={styles.helper}>
-            Required. Cards will auto-grow if the text is long.
-          </div>
+          <div className={styles.helper}>Required. Cards will auto-grow if the text is long.</div>
         </section>
       )}
 
@@ -151,12 +171,7 @@ export default function NewTaskModal({ sortMode, onClose, onCreate }) {
         </button>
 
         <div className={styles.footerRight}>
-          <button
-            className={styles.ghostBtn}
-            type="button"
-            onClick={back}
-            disabled={step === 0}
-          >
+          <button className={styles.ghostBtn} type="button" onClick={back} disabled={step === 0}>
             Back
           </button>
 
