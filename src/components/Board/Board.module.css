@@ -1,113 +1,197 @@
-.column{
-  background: rgba(255,255,255,.25);
-  border: 1px solid rgba(79,55,138,.20);
+/* Column */
+.column {
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(79, 55, 138, 0.2);
   border-radius: var(--r-lg);
   padding: 14px;
-  display:flex;
-  flex-direction:column;
+  display: flex;
+  flex-direction: column;
   min-width: 0;
 }
 
-.colHeader{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
+.colHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 6px 8px 12px 8px;
 }
 
-.colTitle{
+.colTitle {
   font-size: 22px;
   font-style: italic;
-  color: rgba(175,129,220,.95);
-  letter-spacing: .3px;
+  color: rgba(175, 129, 220, 0.95);
+  letter-spacing: 0.3px;
 }
 
-.colPlus{
+.colPlus {
   width: 28px;
   height: 28px;
   border-radius: 999px;
-  border: none;
-  cursor:pointer;
-  background: rgba(175,129,220,.25);
-  color: rgba(79,55,138,.8);
+  border: 1px solid rgba(79, 55, 138, 0.14);
+  cursor: pointer;
+  background: rgba(175, 129, 220, 0.22);
+  color: rgba(79, 55, 138, 0.82);
+  display: grid;
+  place-items: center;
+  transition: background 140ms ease, transform 140ms ease, border-color 140ms ease;
 }
 
-.colBody{
-  flex:1;
-  display:flex;
-  flex-direction:column;
+.colPlus:hover {
+  background: rgba(175, 129, 220, 0.3);
+  border-color: rgba(79, 55, 138, 0.2);
+}
+
+.colPlus:active {
+  transform: scale(0.96);
+}
+
+.colBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   gap: 18px;
   padding: 8px;
-  overflow:auto;
+  overflow: auto;
 }
 
 /* Card */
-.card{
+.card {
   position: relative;
-  background: rgba(232,222,248,.55);
+  background: rgba(232, 222, 248, 0.55);
   border-radius: var(--r-md);
-  padding: 18px 18px 14px 18px;
-  box-shadow: 0 10px 20px rgba(40,20,80,.06);
+  padding: 16px 16px 14px 16px;
+  box-shadow: 0 10px 20px rgba(40, 20, 80, 0.06);
+  border: 1px solid rgba(79, 55, 138, 0.1);
+
+  /* ✅ leave space so the top-right delete chip doesn't overlap text */
+  padding-top: 18px;
+
+  /* ✅ reserve space on the right for delete/index chips */
+  padding-right: 56px;
 }
 
-.cardTitle{
+/* ❌ Not used anymore (kept harmless if some file still imports it) */
+.cardHeader {
+  display: none;
+}
+
+/* Title + desc stacked and centered */
+.cardTitle {
   font-weight: 700;
-  text-align:center;
-  color: rgba(79,55,138,.95);
-  letter-spacing: .2px;
+  text-align: center;
+  color: rgba(79, 55, 138, 0.95);
+  letter-spacing: 0.2px;
+  margin-top: 2px;
 }
 
-.cardDesc{
+.cardDesc {
   margin-top: 10px;
-  text-align:center;
+  text-align: center;
   font-size: 12px;
   line-height: 1.35;
-  color: rgba(79,55,138,.60);
+  color: rgba(79, 55, 138, 0.6);
   white-space: pre-wrap;
   word-break: break-word;
 }
 
 /* footer */
-.cardFooter{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
+.cardFooter {
+  display: flex;
+  align-items: center;
+
+  /* ✅ badge stays left; index is absolute so no need for space-between */
+  justify-content: flex-start;
+
   margin-top: 16px;
+  gap: 10px;
 }
 
-.priorityBadge{
-  display:flex;
-  align-items:center;
+.priorityBadge {
+  display: flex;
+  align-items: center;
   gap: 8px;
-  background: rgba(79,55,138,.18);
+  background: rgba(79, 55, 138, 0.18);
   padding: 6px 12px;
   border-radius: 999px;
   min-width: 170px;
+  border: 1px solid rgba(79, 55, 138, 0.1);
 }
 
-.triangle{
-  width:0;
-  height:0;
+.triangle {
+  width: 0;
+  height: 0;
   border-left: 7px solid transparent;
   border-right: 7px solid transparent;
-  border-bottom: 10px solid rgba(79,55,138,1);
+  border-bottom: 10px solid rgba(79, 55, 138, 1);
   opacity: var(--prioOpacity);
 }
 
-.priorityText{
+.priorityText {
   font-size: 11px;
-  color: rgba(79,55,138,1);
+  color: rgba(79, 55, 138, 1);
   opacity: var(--prioOpacity);
 }
 
-.indexChip{
+/* ✅ index chip: bottom-right, aligned with delete chip */
+.indexChip {
+  position: absolute;
+  right: 12px;   /* ✅ same as delete chip */
+  bottom: 12px;  /* ✅ bottom-right */
   width: 28px;
   height: 20px;
-  border-radius: 999px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 11px;
-  background: rgba(79,55,138,.18);
-  color: rgba(79,55,138,.75);
+  background: rgba(79, 55, 138, 0.18);
+  color: rgba(79, 55, 138, 0.75);
+  border: 1px solid rgba(79, 55, 138, 0.1);
+}
+
+/* =========================================
+   ✅ Delete chip (same "chip" vibe as index)
+   - rectangle with radius 18
+   - purple, not red
+   - positioned top-right without pushing title
+   ========================================= */
+.chipIconBtn {
+  position: absolute;
+  top: 12px;
+  right: 12px; /* ✅ same as index */
+
+  width: 28px;
+  height: 20px;
+  border-radius: 18px;
+
+  display: grid;
+  place-items: center;
+
+  border: 1px solid rgba(79, 55, 138, 0.1);
+  background: rgba(79, 55, 138, 0.18);
+  color: rgba(79, 55, 138, 0.78);
+
+  cursor: pointer;
+  transition: background 140ms ease, border-color 140ms ease, transform 140ms ease, color 140ms ease;
+}
+
+.chipIconBtn:hover {
+  background: rgba(79, 55, 138, 0.24);
+  border-color: rgba(79, 55, 138, 0.18);
+  color: rgba(79, 55, 138, 0.88);
+}
+
+.chipIconBtn:active {
+  transform: scale(0.96);
+}
+
+.chipIconBtn:focus-visible,
+.colPlus:focus-visible {
+  outline: 2px solid rgba(175, 129, 220, 0.55);
+  outline-offset: 2px;
+}
+
+/* optional: make svg look crisp */
+.chipIconBtn svg {
+  display: block;
 }
