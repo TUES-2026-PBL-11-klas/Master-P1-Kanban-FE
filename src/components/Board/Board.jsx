@@ -1,7 +1,8 @@
+// src/components/Board/Board.jsx
 import Column from "./Column";
 import styles from "./Board.module.css";
 
-export default function Board({ columns, counts, onAddTask, onDeleteTask }) {
+export default function Board({ columns, counts, onAddTask, onDeleteTask, onMoveTask }) {
   return (
     <>
       <Column
@@ -10,6 +11,7 @@ export default function Board({ columns, counts, onAddTask, onDeleteTask }) {
         tasks={columns.todo}
         onAddTask={onAddTask}
         onDeleteTask={onDeleteTask}
+        onMoveTask={onMoveTask} // ✅ NEW
       />
 
       <Column
@@ -18,6 +20,7 @@ export default function Board({ columns, counts, onAddTask, onDeleteTask }) {
         tasks={columns.inprogress}
         onAddTask={onAddTask}
         onDeleteTask={onDeleteTask}
+        onMoveTask={onMoveTask} // ✅ NEW
       />
 
       <Column
@@ -26,6 +29,7 @@ export default function Board({ columns, counts, onAddTask, onDeleteTask }) {
         tasks={columns.done}
         onAddTask={onAddTask}
         onDeleteTask={onDeleteTask}
+        onMoveTask={onMoveTask} // ✅ NEW
       />
     </>
   );

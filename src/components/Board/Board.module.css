@@ -63,10 +63,10 @@
   box-shadow: 0 10px 20px rgba(40, 20, 80, 0.06);
   border: 1px solid rgba(79, 55, 138, 0.1);
 
-  /* ✅ leave space so the top-right delete chip doesn't overlap text */
+  /* ✅ leave space so the top-right chip doesn't overlap text */
   padding-top: 18px;
 
-  /* ✅ reserve space on the right for delete/index chips */
+  /* ✅ reserve space on the right for chips */
   padding-right: 56px;
 }
 
@@ -132,11 +132,11 @@
   opacity: var(--prioOpacity);
 }
 
-/* ✅ index chip: bottom-right, aligned with delete chip */
+/* ✅ index chip: bottom-right, aligned with menu chip */
 .indexChip {
   position: absolute;
-  right: 12px;   /* ✅ same as delete chip */
-  bottom: 12px;  /* ✅ bottom-right */
+  right: 12px;
+  bottom: 12px;
   width: 28px;
   height: 20px;
   border-radius: 18px;
@@ -150,15 +150,14 @@
 }
 
 /* =========================================
-   ✅ Delete chip (same "chip" vibe as index)
+   ✅ Chip button (top-right) – used for menu (⋮)
    - rectangle with radius 18
-   - purple, not red
-   - positioned top-right without pushing title
+   - purple
    ========================================= */
 .chipIconBtn {
   position: absolute;
   top: 12px;
-  right: 12px; /* ✅ same as index */
+  right: 12px;
 
   width: 28px;
   height: 20px;
@@ -172,7 +171,8 @@
   color: rgba(79, 55, 138, 0.78);
 
   cursor: pointer;
-  transition: background 140ms ease, border-color 140ms ease, transform 140ms ease, color 140ms ease;
+  transition: background 140ms ease, border-color 140ms ease, transform 140ms ease,
+    color 140ms ease;
 }
 
 .chipIconBtn:hover {
@@ -194,4 +194,91 @@
 /* optional: make svg look crisp */
 .chipIconBtn svg {
   display: block;
+}
+
+/* =========================================
+   ✅ NEW: dropdown menu for Move to...
+   (anchored to the chip button)
+   ========================================= */
+
+/* wrapper that holds chip + dropdown */
+.menuWrap {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 20;
+}
+
+/* IMPORTANT: when chip is inside menuWrap, we don't want chip to be absolute */
+.menuWrap .chipIconBtn {
+  position: static; /* ✅ keeps it aligned and avoids double offsets */
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 26px;
+  right: 0;
+  min-width: 170px;
+
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(79, 55, 138, 0.14);
+  border-radius: 14px;
+  box-shadow: 0 12px 26px rgba(40, 20, 80, 0.10);
+
+  padding: 8px;
+  backdrop-filter: blur(10px);
+}
+
+.menuLabel {
+  font-size: 11px;
+  color: rgba(79, 55, 138, 0.70);
+  padding: 6px 8px 4px 8px;
+}
+
+.menuItem {
+  width: 100%;
+  text-align: left;
+
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+
+  padding: 8px 10px;
+  cursor: pointer;
+
+  color: rgba(79, 55, 138, 0.92);
+  font-size: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  transition: background 140ms ease;
+}
+
+.menuItem:hover {
+  background: rgba(79, 55, 138, 0.08);
+}
+
+.menuItem:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.menuDivider {
+  height: 1px;
+  margin: 6px 2px;
+  background: rgba(79, 55, 138, 0.12);
+}
+
+.menuDot {
+  opacity: 0.8;
+}
+
+.menuDanger {
+  color: rgba(186, 26, 26, 0.86);
+}
+
+.menuDanger:hover {
+  background: rgba(186, 26, 26, 0.10);
 }

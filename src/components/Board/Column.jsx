@@ -1,7 +1,14 @@
 import TaskCard from "./TaskCard";
 import styles from "./Board.module.css";
 
-export default function Column({ columnId, title, tasks, onAddTask, onDeleteTask }) {
+export default function Column({
+  columnId,
+  title,
+  tasks,
+  onAddTask,
+  onDeleteTask,
+  onMoveTask, // ✅ NEW
+}) {
   function handleAdd() {
     if (!onAddTask) return;
     onAddTask(columnId);
@@ -29,6 +36,8 @@ export default function Column({ columnId, title, tasks, onAddTask, onDeleteTask
             task={t}
             index={idx + 1}
             onDelete={onDeleteTask}
+            onMove={onMoveTask} // ✅ NEW
+            currentColumnId={columnId} // ✅ NEW (за dropdown логика)
           />
         ))}
       </div>

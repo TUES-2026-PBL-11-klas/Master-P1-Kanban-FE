@@ -1,4 +1,3 @@
-
 // src/App.jsx
 import { useEffect, useRef, useState } from "react";
 import TopBar from "./components/TopBar/TopBar";
@@ -33,7 +32,7 @@ export default function App() {
 
   async function handleCreateTask(input) {
     try {
-      await actions.createTask(input); // POST към backend + update UI
+      await actions.createTask(input);
       closeNewTask();
     } catch (e) {
       alert(state.error ?? "Failed to create task");
@@ -46,6 +45,15 @@ export default function App() {
       await actions.deleteTask(task);
     } catch (e) {
       alert(state.error ?? "Failed to delete task");
+    }
+  }
+
+  // ✅ MOVE task (DB + UI)
+  async function handleMoveTask(task, toColumnId) {
+    try {
+      await actions.moveTask(task, toColumnId);
+    } catch (e) {
+      alert(state.error ?? "Failed to move task");
     }
   }
 
@@ -80,7 +88,6 @@ export default function App() {
   // ✅ IMPORT CSV: file selected
   async function handleImportFileChange(e) {
     const file = e.target.files?.[0];
-    // reset input so selecting the same file again still fires onChange
     e.target.value = "";
     if (!file) return;
 
@@ -95,12 +102,10 @@ export default function App() {
         await actions.deleteAllFromApi();
       }
 
-      // Create each task through existing POST logic
       for (const t of importedTasks) {
         await actions.createTask(t);
       }
 
-      // Final sync from API
       await actions.loadFromApi();
       alert("Import complete ✅");
     } catch (err) {
@@ -121,7 +126,7 @@ export default function App() {
 
       <TopBar
         sortMode={state.sortMode}
-        onDeleteAll={handleDeleteAll} // ✅ delete from DB + UI
+        onDeleteAll={handleDeleteAll}
         onToggleSort={actions.toggleSortMode}
         onNewTask={() => openNewTask(null)}
         onExport={handleExportCsv}
@@ -160,6 +165,7 @@ export default function App() {
               counts={derived.counts}
               onAddTask={openNewTask}
               onDeleteTask={handleDeleteTask}
+              onMoveTask={handleMoveTask} // ✅ NEW
             />
           )}
         </div>
