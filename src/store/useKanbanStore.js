@@ -1,6 +1,13 @@
-import { useMemo, useState } from "react";
+// src/store/useKanbanStore.js
+import { useMemo, useRef, useState, useEffect } from "react";
 import { nanoid } from "nanoid";
 import { PRIORITY_RANK } from "../utils/priority";
+import {
+  fetchTasks,
+  createTask as apiCreateTask,
+  deleteTask as apiDeleteTask,
+  updateTask as apiUpdateTask,
+} from "../utils/api";
 
 const now = Date.now();
 
@@ -80,22 +87,130 @@ function sortColumnTasks(tasks, sortMode) {
 }
 
 export function useKanbanStore() {
-  //  Start empty
   const [tasks, setTasks] = useState([]);
-  const [sortMode, setSortMode] = useState("none"); // "none" | "priority"
+  const [sortMode, setSortMode] = useState("none");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
+  // ✅ always have latest tasks available for stable actions
+  const tasksRef = useRef(tasks);
+  useEffect(() => {
+    tasksRef.current = tasks;
+  }, [tasks]);
+
+  // ✅ actions must be stable, иначе App useEffect цикли
   const actions = useMemo(() => {
     return {
-      createTask(input) {
-        // input = { columnId, priority, title, description }
-        const task = {
-          id: nanoid(),
-          createdAt: Date.now(),
-          ...input,
-        };
-        setTasks((prev) => [...prev, task]);
+      async loadFromApi() {
+        setIsLoading(true);
+        setError(null);
+        try {
+          const data = await fetchTasks();
+          setTasks(data);
+        } catch (e) {
+          setError(e?.message ?? String(e));
+        } finally {
+          setIsLoading(false);
+        }
       },
 
+      async createTask(input) {
+        setError(null);
+        try {
+          const created = await apiCreateTask(input);
+          setTasks((prev) => [...prev, created]);
+          return created;
+        } catch (e) {
+          setError(e?.message ?? String(e));
+          throw e;
+        }
+      },
+
+      async deleteTask(task) {
+        const idx = task?.index;
+        if (typeof idx !== "number") {
+          const msg = "Cannot delete: missing task.index (backend id).";
+          setError(msg);
+          throw new Error(msg);
+        }
+
+        setError(null);
+        try {
+          await apiDeleteTask(idx);
+          setTasks((prev) => prev.filter((t) => t.index !== idx));
+        } catch (e) {
+          setError(e?.message ?? String(e));
+          throw e;
+        }
+      },
+
+      async deleteAllFromApi() {
+        setError(null);
+
+        // ✅ snapshot from ref (latest tasks) — no weird setState hacks
+        const snapshot = tasksRef.current ?? [];
+
+        try {
+          for (const t of snapshot) {
+            if (typeof t.index === "number") {
+              await apiDeleteTask(t.index);
+            }
+          }
+          setTasks([]);
+        } catch (e) {
+          setError(e?.message ?? String(e));
+          throw e;
+        }
+      },
+
+      // ✅ move task between columns (PUT към backend + update UI)
+      async moveTask(task, toColumnId) {
+        const idx = task?.index;
+        if (typeof idx !== "number") {
+          const msg = "Cannot move: missing task.index (backend id).";
+          setError(msg);
+          throw new Error(msg);
+        }
+
+        if (!toColumnId) {
+          const msg = "Cannot move: missing target columnId.";
+          setError(msg);
+          throw new Error(msg);
+        }
+
+        if (task.columnId === toColumnId) return task; // no-op
+
+        setError(null);
+
+        const prevColumnId = task.columnId;
+
+        // optimistic UI
+        setTasks((prev) =>
+          prev.map((t) => (t.index === idx ? { ...t, columnId: toColumnId } : t))
+        );
+
+        try {
+          const updated = await apiUpdateTask({ ...task, columnId: toColumnId });
+
+          setTasks((prev) =>
+            prev.map((t) => (t.index === idx ? { ...t, ...updated } : t))
+          );
+
+          return updated;
+        } catch (e) {
+          // rollback
+          setTasks((prev) =>
+            prev.map((t) =>
+              t.index === idx ? { ...t, columnId: prevColumnId } : t
+            )
+          );
+
+          setError(e?.message ?? String(e));
+          throw e;
+        }
+      },
+
+      // UI only
       deleteAll() {
         setTasks([]);
       },
@@ -104,12 +219,10 @@ export function useKanbanStore() {
         setSortMode((prev) => (prev === "none" ? "priority" : "none"));
       },
 
-      //  Dev helper: shows demo tasks
       loadDemo() {
         setTasks(seedTasks);
       },
 
-      //  makes board empty
       reset() {
         setTasks([]);
       },
@@ -120,7 +233,6 @@ export function useKanbanStore() {
     const byColumn = { todo: [], inprogress: [], done: [] };
 
     for (const t of tasks) {
-      // safety: if there's wrong id we ignore
       if (!byColumn[t.columnId]) continue;
       byColumn[t.columnId].push(t);
     }
@@ -139,5 +251,5 @@ export function useKanbanStore() {
     };
   }, [tasks, sortMode]);
 
-  return { state: { tasks, sortMode }, derived, actions };
+  return { state: { tasks, sortMode, isLoading, error }, derived, actions };
 }
