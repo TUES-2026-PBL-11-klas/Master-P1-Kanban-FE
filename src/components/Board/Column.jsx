@@ -1,9 +1,8 @@
 import TaskCard from "./TaskCard";
 import styles from "./Board.module.css";
 
-export default function Column({ columnId, title, tasks, onAddTask }) {
+export default function Column({ columnId, title, tasks, onAddTask, onDeleteTask }) {
   function handleAdd() {
-    // ако няма подаден handler, просто нищо (за safety)
     if (!onAddTask) return;
     onAddTask(columnId);
   }
@@ -21,12 +20,16 @@ export default function Column({ columnId, title, tasks, onAddTask }) {
         >
           +
         </button>
-        
       </div>
 
       <div className={styles.colBody}>
         {tasks.map((t, idx) => (
-          <TaskCard key={t.id} task={t} index={idx + 1} />
+          <TaskCard
+            key={t.id}
+            task={t}
+            index={idx + 1}
+            onDelete={onDeleteTask}
+          />
         ))}
       </div>
     </section>

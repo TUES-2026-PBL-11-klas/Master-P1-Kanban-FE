@@ -1,6 +1,11 @@
 import { useMemo, useState } from "react";
 import { nanoid } from "nanoid";
 import { PRIORITY_RANK } from "../utils/priority";
+import {
+  fetchTasks,
+  createTask as apiCreateTask,
+  deleteTask as apiDeleteTask,
+} from "../utils/api";
 
 const now = Date.now();
 
@@ -80,22 +85,80 @@ function sortColumnTasks(tasks, sortMode) {
 }
 
 export function useKanbanStore() {
-  //  Start empty
   const [tasks, setTasks] = useState([]);
-  const [sortMode, setSortMode] = useState("none"); // "none" | "priority"
+  const [sortMode, setSortMode] = useState("none");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
+  // ✅ actions must be stable, иначе App useEffect цикли
   const actions = useMemo(() => {
     return {
-      createTask(input) {
-        // input = { columnId, priority, title, description }
-        const task = {
-          id: nanoid(),
-          createdAt: Date.now(),
-          ...input,
-        };
-        setTasks((prev) => [...prev, task]);
+      async loadFromApi() {
+        setIsLoading(true);
+        setError(null);
+        try {
+          const data = await fetchTasks();
+          setTasks(data);
+        } catch (e) {
+          setError(e?.message ?? String(e));
+        } finally {
+          setIsLoading(false);
+        }
       },
 
+      async createTask(input) {
+        setError(null);
+        try {
+          const created = await apiCreateTask(input);
+          setTasks((prev) => [...prev, created]);
+        } catch (e) {
+          setError(e?.message ?? String(e));
+          throw e;
+        }
+      },
+
+      async deleteTask(task) {
+        const idx = task?.index;
+        if (typeof idx !== "number") {
+          const msg = "Cannot delete: missing task.index (backend id).";
+          setError(msg);
+          throw new Error(msg);
+        }
+
+        setError(null);
+        try {
+          await apiDeleteTask(idx);
+          setTasks((prev) => prev.filter((t) => t.index !== idx));
+        } catch (e) {
+          setError(e?.message ?? String(e));
+          throw e;
+        }
+      },
+
+      async deleteAllFromApi() {
+        setError(null);
+
+        // ✅ взимаме snapshot на текущите tasks чрез setTasks callback
+        let snapshot = [];
+        setTasks((prev) => {
+          snapshot = prev;
+          return prev; // не променяме още
+        });
+
+        try {
+          for (const t of snapshot) {
+            if (typeof t.index === "number") {
+              await apiDeleteTask(t.index);
+            }
+          }
+          setTasks([]);
+        } catch (e) {
+          setError(e?.message ?? String(e));
+          throw e;
+        }
+      },
+
+      // UI only
       deleteAll() {
         setTasks([]);
       },
@@ -104,12 +167,10 @@ export function useKanbanStore() {
         setSortMode((prev) => (prev === "none" ? "priority" : "none"));
       },
 
-      //  Dev helper: shows demo tasks
       loadDemo() {
         setTasks(seedTasks);
       },
 
-      //  makes board empty
       reset() {
         setTasks([]);
       },
@@ -120,7 +181,6 @@ export function useKanbanStore() {
     const byColumn = { todo: [], inprogress: [], done: [] };
 
     for (const t of tasks) {
-      // safety: if there's wrong id we ignore
       if (!byColumn[t.columnId]) continue;
       byColumn[t.columnId].push(t);
     }
@@ -139,5 +199,5 @@ export function useKanbanStore() {
     };
   }, [tasks, sortMode]);
 
-  return { state: { tasks, sortMode }, derived, actions };
+  return { state: { tasks, sortMode, isLoading, error }, derived, actions };
 }
